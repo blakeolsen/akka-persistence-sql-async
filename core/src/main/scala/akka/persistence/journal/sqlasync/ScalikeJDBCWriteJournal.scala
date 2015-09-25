@@ -35,33 +35,29 @@ private[sqlasync] trait ScalikeJDBCWriteJournal extends AsyncWriteJournal with A
   override def asyncWriteMessages(messages: immutable.Seq[AtomicWrite]): Future[immutable.Seq[Try[Unit]]] = {
 
     log.debug("Write {} messages: {}", messages.length, messages)
-    System.out.println("Write {} messages: {}", messages.length, messages)
     var persistenceIds = Set.empty[String]
     var allTags = Set.empty[String]
     val batch = mutable.ListBuffer.empty[SQLSyntax]
 
-    val result = messages.flatMap { msg =>
-      msg.payload.map { pr: PersistentRepr =>
-        System.out.println(s"Processing repr: $pr")
-        for {
-          pr <- validatePersitenceId(pr)
-          pr2 = pr.payload match {
-              case Tagged(payload, tags) =>
-                allTags ++= tags
-                pr.withPayload(payload)
-              case _ => pr
-            }
-          bytes <- serialization.serialize(pr2) 
-        } yield {
-          persistenceIds += pr.persistenceId
-          batch += sqls"(${pr2.persistenceId}, ${pr2.sequenceNr}, $bytes)"
-          // We need Try[Unit] as a result type
-          ()
-        }
-      }
+    val result = messages.map { msg =>
+      msg.payload.foldLeft[Try[immutable.List[SQLSyntax]]](Success(Nil)) { 
+        case (Failure(e), _) => Failure(e)
+        case (Success(ss: List[SQLSyntax]), pr: PersistentRepr) =>
+          for {
+            pr <- validatePersitenceId(pr)
+            pr2 = pr.payload match {
+                case Tagged(payload, tags) =>
+                  allTags ++= tags
+                  pr.withPayload(payload)
+                case _ => pr
+              }
+            bytes <- serialization.serialize(pr2) 
+          } yield {
+            persistenceIds += pr.persistenceId
+            ss :+ sqls"(${pr2.persistenceId}, ${pr2.sequenceNr}, $bytes)"
+          }
+      }.map{ xs: List[SQLSyntax] => batch.appendAll(xs) }
     }
-
-    System.out.println(s"batch looks like: ${batch}")
 
     val records = sqls.csv(batch: _*)
     val sql = sql"INSERT INTO $table (persistence_id, sequence_nr, message) VALUES $records"
