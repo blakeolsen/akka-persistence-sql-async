@@ -1,16 +1,16 @@
 package akka.persistence.journal.sqlasync
 
-import akka.actor.ActorLogging
+import akka.actor.{ActorLogging, ActorRef}
 import akka.persistence.common.{ScalikeJDBCExtension, ScalikeJDBCSessionProvider}
-import akka.persistence.journal.AsyncWriteJournal
+import akka.persistence.journal.{AsyncWriteJournal, Tagged}
 import akka.persistence.{AtomicWrite, PersistentRepr}
 import akka.serialization.{Serialization, SerializationExtension}
-import scala.collection.immutable
-import scala.collection.mutable.ListBuffer
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 import scalikejdbc._
 import scalikejdbc.async._
+import scala.collection.mutable
+import scala.collection.immutable
 
 private[sqlasync] trait ScalikeJDBCWriteJournal extends AsyncWriteJournal with ActorLogging {
   import context.dispatcher
@@ -23,9 +23,55 @@ private[sqlasync] trait ScalikeJDBCWriteJournal extends AsyncWriteJournal with A
     SQLSyntax.createUnsafely(tableName)
   }
 
+
+  private val persistenceIdSubscribers = new mutable.HashMap[String, mutable.Set[ActorRef]] with mutable.MultiMap[String, ActorRef]
+  private val tagSubscribers = new mutable.HashMap[String, mutable.Set[ActorRef]] with mutable.MultiMap[String, ActorRef]
+  private var allPersistenceIdsSubscribers = Set.empty[ActorRef]
+
+  private var tagSequenceNr = Map.empty[String, Long]
+  private val tagPersistenceIdPrefix = "$$$"
+
+
   override def asyncWriteMessages(messages: immutable.Seq[AtomicWrite]): Future[immutable.Seq[Try[Unit]]] = {
-    log.debug("Write messages, {}", messages)
-    val batch = ListBuffer.empty[SQLSyntax]
+
+    log.debug("Write {} messages: {}", messages.length, messages)
+    System.out.println("Write {} messages: {}", messages.length, messages)
+    var persistenceIds = Set.empty[String]
+    var allTags = Set.empty[String]
+    val batch = mutable.ListBuffer.empty[SQLSyntax]
+
+    val result = messages.flatMap { msg =>
+      msg.payload.map { pr: PersistentRepr =>
+        System.out.println(s"Processing repr: $pr")
+        for {
+          pr <- validatePersitenceId(pr)
+          pr2 = pr.payload match {
+              case Tagged(payload, tags) =>
+                allTags ++= tags
+                pr.withPayload(payload)
+              case _ => pr
+            }
+          bytes <- serialization.serialize(pr2) 
+        } yield {
+          persistenceIds += pr.persistenceId
+          batch += sqls"(${pr2.persistenceId}, ${pr2.sequenceNr}, $bytes)"
+          // We need Try[Unit] as a result type
+          ()
+        }
+      }
+    }
+
+    System.out.println(s"batch looks like: ${batch}")
+
+    val records = sqls.csv(batch: _*)
+    val sql = sql"INSERT INTO $table (persistence_id, sequence_nr, message) VALUES $records"
+    log.debug("Execute {}, binding {}", sql.statement, messages)
+    sessionProvider.localTx { implicit session =>
+      sql.update().future().map(_ => result)
+    }
+  }
+
+  /*
     val result = messages.map { writes =>
       writes.payload.foldLeft[Try[List[SQLSyntax]]](Success(Nil)) {
         case (Success(xs), x) => serialization.serialize(x) match {
@@ -35,14 +81,14 @@ private[sqlasync] trait ScalikeJDBCWriteJournal extends AsyncWriteJournal with A
         case (Failure(e), _) => Failure(e)
       }.map(_.reverse).map(batch.append)
     }
+  */
 
-    val records = sqls.csv(batch: _*)
-    val sql = sql"INSERT INTO $table (persistence_id, sequence_nr, message) VALUES $records"
-    log.debug("Execute {}, binding {}", sql.statement, messages)
-    sessionProvider.localTx { implicit session =>
-      sql.update().future().map(_ => result)
-    }
-  }
+  def validatePersitenceId(pr: PersistentRepr): Try[PersistentRepr] = 
+    if(pr.persistenceId.startsWith(tagPersistenceIdPrefix))
+      Failure(new IllegalArgumentException(s"persistenceId [${pr.persistenceId}] must not start with $tagPersistenceIdPrefix"))
+    else
+      Success(pr)
+
 
   override def asyncDeleteMessagesTo(persistenceId: String, toSequenceNr: Long): Future[Unit] = {
     log.debug("Delete messages, persistenceId = {}, toSequenceNr = {}", persistenceId, toSequenceNr)

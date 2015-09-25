@@ -1,5 +1,8 @@
 package akka.persistence.journal.sqlasync
 
+import akka.actor._
+import akka.persistence.PersistentRepr
+
 class MySQLAsyncWriteJournal extends ScalikeJDBCWriteJournal
 
 class PostgreSQLAsyncWriteJournal extends ScalikeJDBCWriteJournal

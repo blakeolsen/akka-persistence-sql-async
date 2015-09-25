@@ -59,6 +59,8 @@ lazy val persistenceQueryDependencies = Seq(
   "com.typesafe.akka" %% "akka-persistence-query-experimental" % akkaVersion
 )
 
+testOptions in ThisBuild += Tests.Argument("-oDF")
+
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
   publishArtifact in Test := false,

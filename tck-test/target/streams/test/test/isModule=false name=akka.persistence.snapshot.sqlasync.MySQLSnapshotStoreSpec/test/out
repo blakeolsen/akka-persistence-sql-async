@@ -1,0 +1,12 @@
+[0m[[0minfo[0m] [0m[32mMySQLSnapshotStoreSpec:[0m[0m
+[0m[[0minfo[0m] [0m[32mA snapshot store[0m[0m
+[0m[[0minfo[0m] [0m[32m- must not load a snapshot given an invalid persistenceId (28 milliseconds)[0m[0m
+[0m[[0minfo[0m] [0m[32m- must not load a snapshot given non-matching timestamp criteria (1 millisecond)[0m[0m
+[0m[[0minfo[0m] [0m[32m- must not load a snapshot given non-matching sequence number criteria (2 milliseconds)[0m[0m
+[0m[[0minfo[0m] [0m[32m- must load the most recent snapshot (27 milliseconds)[0m[0m
+[0m[[0minfo[0m] [0m[32m- must load the most recent snapshot matching an upper sequence number bound (3 milliseconds)[0m[0m
+[0m[[0minfo[0m] [0m[32m- must load the most recent snapshot matching upper sequence number and timestamp bounds (2 milliseconds)[0m[0m
+[0m[[0minfo[0m] [0m[32m- must delete a single snapshot identified by sequenceNr in snapshot metadata (19 milliseconds)[0m[0m
+[0m[[0minfo[0m] [0m[32m- must delete all snapshots matching upper sequence number and timestamp bounds (20 milliseconds)[0m[0m
+[0m[[0minfo[0m] [0m[32m- must not delete snapshots with non-matching upper timestamp bounds (16 milliseconds)[0m[0m
+[0m[[0minfo[0m] [0m[32m- must save and overwrite snapshot with same sequence number (14 milliseconds)[0m[0m

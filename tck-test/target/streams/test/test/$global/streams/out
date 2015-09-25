@@ -1,0 +1,16 @@
+[0m[[0mdebug[0m] [0mRunning TaskDef(akka.persistence.journal.sqlasync.PostgreSQLAsyncJournalSpec, org.scalatest.tools.Framework$$anon$1@6d8f4ffc, false, [SuiteSelector])[0m
+[0m[[0mdebug[0m] [0mRunning TaskDef(akka.persistence.snapshot.sqlasync.MySQLSnapshotStoreSpec, org.scalatest.tools.Framework$$anon$1@6d8f4ffc, false, [SuiteSelector])[0m
+[0m[[0mdebug[0m] [0mRunning TaskDef(akka.persistence.snapshot.sqlasync.PostgreSQLSnapshotStoreSpec, org.scalatest.tools.Framework$$anon$1@6d8f4ffc, false, [SuiteSelector])[0m
+[0m[[0mdebug[0m] [0mRunning TaskDef(akka.persistence.journal.sqlasync.MySQLAsyncJournalSpec, org.scalatest.tools.Framework$$anon$1@6d8f4ffc, false, [SuiteSelector])[0m
+[0m[[0minfo[0m] [0m[36mRun completed in 1 second, 837 milliseconds.[0m[0m
+[0m[[0minfo[0m] [0m[36mTotal number of tests run: 20[0m[0m
+[0m[[0minfo[0m] [0m[36mSuites: completed 2, aborted 2[0m[0m
+[0m[[0minfo[0m] [0m[36mTests: succeeded 20, failed 0, canceled 0, ignored 0, pending 0[0m[0m
+[0m[[0minfo[0m] [0m[31m*** 2 SUITES ABORTED ***[0m[0m
+[0m[[0mdebug[0m] [0mPassed tests:[0m
+[0m[[0mdebug[0m] [0m	akka.persistence.snapshot.sqlasync.PostgreSQLSnapshotStoreSpec[0m
+[0m[[0mdebug[0m] [0m	akka.persistence.snapshot.sqlasync.MySQLSnapshotStoreSpec[0m
+[0m[[31merror[0m] [0mError during tests:[0m
+[0m[[31merror[0m] [0m	akka.persistence.journal.sqlasync.MySQLAsyncJournalSpec[0m
+[0m[[31merror[0m] [0m	akka.persistence.journal.sqlasync.PostgreSQLAsyncJournalSpec[0m
+[0m[[31merror[0m] [0m(tckTest/test:[31mtest[0m) sbt.TestsFailedException: Tests unsuccessful[0m
