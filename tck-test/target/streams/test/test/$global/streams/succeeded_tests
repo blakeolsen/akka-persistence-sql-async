@@ -1,4 +1,0 @@
-#Successful Tests
-#Thu Sep 24 21:36:52 PDT 2015
-akka.persistence.snapshot.sqlasync.PostgreSQLSnapshotStoreSpec=1443155812577
-akka.persistence.snapshot.sqlasync.MySQLSnapshotStoreSpec=1443155812239

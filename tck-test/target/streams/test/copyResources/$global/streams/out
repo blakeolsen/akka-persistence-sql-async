@@ -1,5 +1,0 @@
-[0m[[0mdebug[0m] [0mCopy resource mappings: [0m
-[0m[[0mdebug[0m] [0m	(/mnt/gavares/gavares/workspace/akka-persistence-sql-async/tck-test/src/test/resources/log4j.properties,/mnt/gavares/gavares/workspace/akka-persistence-sql-async/tck-test/target/scala-2.11/test-classes/log4j.properties)[0m
-[0m[[0mdebug[0m] [0m	(/mnt/gavares/gavares/workspace/akka-persistence-sql-async/tck-test/src/test/resources/akka-application.conf,/mnt/gavares/gavares/workspace/akka-persistence-sql-async/tck-test/target/scala-2.11/test-classes/akka-application.conf)[0m
-[0m[[0mdebug[0m] [0m	(/mnt/gavares/gavares/workspace/akka-persistence-sql-async/tck-test/src/test/resources/mysql-application.conf,/mnt/gavares/gavares/workspace/akka-persistence-sql-async/tck-test/target/scala-2.11/test-classes/mysql-application.conf)[0m
-[0m[[0mdebug[0m] [0m	(/mnt/gavares/gavares/workspace/akka-persistence-sql-async/tck-test/src/test/resources/postgresql-application.conf,/mnt/gavares/gavares/workspace/akka-persistence-sql-async/tck-test/target/scala-2.11/test-classes/postgresql-application.conf)[0m
