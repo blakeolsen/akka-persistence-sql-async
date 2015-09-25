@@ -13,6 +13,8 @@ private[persistence] class SQLAsyncConfig(val system: ActorSystem) {
   val waitQueueCapacity = config.getInt("wait-queue-capacity")
   val journalTableName = config.getString("journal-table-name")
   val snapshotTableName = config.getString("snapshot-table-name")
+  val tagsTableName = config.getString("tags-table-name")
+  val tagsBridgeTableName = config.getString("tags-bridge-table-name")
 }
 
 private[persistence] object SQLAsyncConfig {
